@@ -1,17 +1,21 @@
 import hasher.Hasher;
 import hasher.MurmurHash3;
+import serializer.JavaSerializer;
+import serializer.Serializer;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class HyperLogLog<T> {
+public class HyperLogLog<T extends Serializable> {
     private final int[] registers;
     private final int b;
     private final int m;
     private final double alphaMM;
     private final Hasher hasher;
+    private final Serializer<T> serializer;
 
 
-    public HyperLogLog(int b, Hasher hasher) {
+    public HyperLogLog(int b, Hasher hasher, Serializer<T> serializer) {
         if (b < 4 || b > 16) {
             throw new IllegalArgumentException("b must be between 4 and 16");
         }
@@ -20,15 +24,16 @@ public class HyperLogLog<T> {
         this.registers = new int[m];
         this.alphaMM = getAlphaMM(m);
         this.hasher = Objects.requireNonNullElseGet(hasher, () -> new MurmurHash3());
+        this.serializer = Objects.requireNonNullElseGet(serializer, () -> new JavaSerializer<>());
     }
 
     public HyperLogLog(int b) {
-        this(b, null);
+        this(b, null, null);
     }
 
 
     public void add(T item) {
-        byte[] data = item.toString().getBytes();
+        byte[] data = serializer.serialize(item);
         long hash = hasher.hash64(data);
         int index = (int) (hash >>> (64 - b));
         long remaining = hash << b;
@@ -36,7 +41,7 @@ public class HyperLogLog<T> {
         registers[index] = Math.max(registers[index], rank);
     }
 
-    public double estimate() {
+    public long estimate() {
         double sum = 0.0;
         for (int register : registers) {
             sum += 1.0 / (1 << register);
@@ -53,7 +58,7 @@ public class HyperLogLog<T> {
             }
         }
 
-        return estimate;
+        return Math.round(estimate);
     }
 
     private double getAlphaMM(int m) {
