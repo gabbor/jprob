@@ -61,6 +61,15 @@ public class HyperLogLog<T extends Serializable> {
         return Math.round(estimate);
     }
 
+    public void merge(HyperLogLog<T> other) {
+        if (other.registers.length != this.registers.length) {
+            throw new IllegalArgumentException("Invalid HLL size");
+        }
+        for (int i = 0; i < registers.length; i++) {
+            this.registers[i] = Math.max(this.registers[i], other.registers[i]);
+        }
+    }
+
     private double getAlphaMM(int m) {
         return switch (m) {
             case 16 -> 0.673 * m * m;
