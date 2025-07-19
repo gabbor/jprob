@@ -1,7 +1,6 @@
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +9,7 @@ import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class HyperLogLogAccuracyTest {
+public class HLLAccuracyTest {
 
     private static <T> void assertEstimateWithinError(
             int b,
@@ -90,10 +89,10 @@ public class HyperLogLogAccuracyTest {
         runInsertionTest(
                 b,
                 insertions,
-                i -> new Person("Name" + i, "Surname" + i,
+                i -> new TestItem("fieldA" + i, "fieldB" + i,
                         170 + (i % 30), LocalDate.of(1990 + (i % 30), 1, 1)),
                 () -> new HyperLogLog<>(b),
-                "Custom Person Objects"
+                "Custom TestItem Objects"
         );
     }
 
