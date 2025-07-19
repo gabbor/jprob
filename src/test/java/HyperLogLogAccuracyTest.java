@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class HyperLogLogAccuracyTest {
 
-    private static <T extends Serializable> void assertEstimateWithinError(
+    private static <T> void assertEstimateWithinError(
             int b,
             Set<T> uniqueItems,
             HyperLogLog<T> hll,
@@ -34,7 +34,7 @@ public class HyperLogLogAccuracyTest {
         );
     }
 
-    private static <T extends Serializable> void runInsertionTest(
+    private static <T> void runInsertionTest(
             int b,
             int totalInsertions,
             Function<Integer, T> generator,

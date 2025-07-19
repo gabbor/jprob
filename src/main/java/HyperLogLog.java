@@ -3,10 +3,9 @@ import hasher.MurmurHash3;
 import serializer.JavaSerializer;
 import serializer.Serializer;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-public class HyperLogLog<T extends Serializable> {
+public class HyperLogLog<T> {
     private final int[] registers;
     private final int b;
     private final int m;
