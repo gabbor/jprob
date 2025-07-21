@@ -7,12 +7,12 @@ import java.util.BitSet;
 
 public class BloomFilter<T> {
 
-    private final double errorRate;
-    private final long numElements;
+    final double errorRate;
+    final long numElements;
+    final BitSet bitSet;
     private final Hasher hasher;
     private final Serializer<T> serializer;
     private final int numHashes;
-    private final BitSet bitSet;
     private final int sliceSize;
 
     public BloomFilter(double errorRate, long numElements, Hasher hasher, Serializer<T> serializer) {
