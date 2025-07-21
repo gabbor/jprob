@@ -6,11 +6,11 @@ import java.nio.ByteOrder;
 public class MurmurHash3 implements Hasher {
 
     @Override
-    public long hash64(byte[] data) {
+    public long hash64(byte[] data, long seed) {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         buffer.order(ByteOrder.LITTLE_ENDIAN);
 
-        long h1 = 0;
+        long h1 = seed;
         long c1 = 0x87c37b91114253d5L;
         long c2 = 0x4cf5ad432745937fL;
 

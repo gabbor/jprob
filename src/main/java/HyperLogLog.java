@@ -33,7 +33,7 @@ public class HyperLogLog<T> {
 
     public void add(T item) {
         byte[] data = serializer.serialize(item);
-        long hash = hasher.hash64(data);
+        long hash = hasher.hash64(data, 0);
         int index = (int) (hash >>> (64 - b));
         long remaining = hash << b;
         int rank = Long.numberOfLeadingZeros(remaining) + 1;
