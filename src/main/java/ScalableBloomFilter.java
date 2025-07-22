@@ -1,3 +1,7 @@
+import hasher.Hasher;
+import hasher.MurmurHash3;
+import serializer.Serializer;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,19 +12,22 @@ public class ScalableBloomFilter<T> {
     private final long initialCapacity;
     private final double growthRate;
     private final double tighteningRatio;
+    private Serializer<T> serializer;
+    private Hasher hasher;
 
-    public ScalableBloomFilter(double errorRate, long initialCapacity, double growthRate, double errorRatio) {
+    public ScalableBloomFilter(double errorRate, long initialCapacity, double growthRate, double errorRatio, Hasher hasher, Serializer<T> serializer) {
         this.filters = new ArrayList<>();
         this.errorRate = errorRate;
         this.initialCapacity = initialCapacity;
         this.growthRate = growthRate;
         this.tighteningRatio = errorRatio;
-
+        this.serializer = serializer;
+        this.hasher = hasher;
         addNewFilter(errorRate * (1 - errorRatio), initialCapacity);
     }
 
     private void addNewFilter(double errorRate, long capacity) {
-        BloomFilter<T> filter = new BloomFilter<>(errorRate, capacity);
+        BloomFilter<T> filter = new BloomFilter<>(errorRate, capacity, new MurmurHash3(), this.serializer);
         filters.add(filter);
     }
 

@@ -1,3 +1,4 @@
+import hasher.MurmurHash3;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
@@ -31,9 +32,8 @@ public class ScalableBloomFilterTest {
     public void testFPRWithScalingAndTestItem(double errorRate, int initialCapacity, int numElements, int testSetSize) {
         double growthRate = 2.0;
         double tighteningRatio = 0.5;
-
         ScalableBloomFilter<TestItem> sbf = new ScalableBloomFilter<>(
-                errorRate, initialCapacity, growthRate, tighteningRatio
+                errorRate, initialCapacity, growthRate, tighteningRatio, new MurmurHash3(), new CustomTestItemSerializer()
         );
 
         for (int i = 0; i < numElements; i++) {

@@ -1,14 +1,17 @@
-
+import hasher.Hasher;
 import hasher.MurmurHash3;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import serializer.JavaSerializer;
+import serializer.Serializer;
+import serializer.StringSerializer;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BloomFilterFalsePositiveTest {
 
@@ -16,10 +19,12 @@ public class BloomFilterFalsePositiveTest {
             double errorRate,
             int numElements,
             int testSetSize,
+            Hasher hasher,
+            Serializer<T> serializer,
             Function<Integer, T> itemFactory,
             String context
     ) {
-        BloomFilter<T> bloomFilter = new BloomFilter<>(errorRate, numElements, new MurmurHash3(), new JavaSerializer<>());
+        BloomFilter<T> bloomFilter = new BloomFilter<>(errorRate, numElements, hasher, serializer);
 
         for (int i = 0; i < numElements; i++) {
             bloomFilter.add(itemFactory.apply(i));
@@ -48,24 +53,29 @@ public class BloomFilterFalsePositiveTest {
             "0.01, 10000, 30000",
             "0.01, 20000, 50000",
             "0.01, 50000, 100000",
+            "0.01, 1000000, 1000000",
             "0.05, 500, 5000",
             "0.05, 1000, 10000",
             "0.05, 5000, 20000",
             "0.05, 10000, 30000",
             "0.05, 20000, 50000",
             "0.05, 50000, 100000",
+            "0.05, 1000000, 1000000",
             "0.001, 500, 5000",
             "0.001, 1000, 10000",
             "0.001, 5000, 20000",
             "0.001, 10000, 30000",
             "0.001, 20000, 50000",
-            "0.001, 50000, 100000"
+            "0.001, 50000, 100000",
+            "0.001, 1000000, 1000000",
     })
     public void testFalsePositiveRateWithStrings(double errorRate, int numElements, int testSetSize) {
         runFalsePositiveTest(
                 errorRate,
                 numElements,
                 testSetSize,
+                new MurmurHash3(),
+                new StringSerializer(StandardCharsets.UTF_8),
                 i -> "item-" + i,
                 "String Elements"
         );
@@ -94,6 +104,8 @@ public class BloomFilterFalsePositiveTest {
                 errorRate,
                 numElements,
                 testSetSize,
+                new MurmurHash3(),
+                new CustomTestItemSerializer(),
                 i -> new TestItem("A" + i, "B" + i, i, LocalDate.of(2020, 1, 1).plusDays(i)),
                 "TestItem Objects"
         );
