@@ -47,6 +47,7 @@ public class ScalableBloomFilter<T> {
 
     private boolean isSaturated(BloomFilter<T> filter) {
         // Simple heuristic: if more than 50% of bits are set
-        return filter.bitSet.cardinality() > filter.bitSet.size() * 0.5;
+        return filter.bitsSetCount > filter.bitSet.size() * 0.5;
     }
+
 }

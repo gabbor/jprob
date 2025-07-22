@@ -10,6 +10,7 @@ public class BloomFilter<T> {
     final double errorRate;
     final long numElements;
     final BitSet bitSet;
+    int bitsSetCount = 0;
     private final Hasher hasher;
     private final Serializer<T> serializer;
     private final int numHashes;
@@ -55,7 +56,10 @@ public class BloomFilter<T> {
             long h = hasher.hash64(data, seed);
             int indexInSlice = Math.floorMod(h, sliceSize);
             int index = i * sliceSize + indexInSlice;
-            bitSet.set(index);
+            if (!bitSet.get(index)) {
+                bitSet.set(index);
+                bitsSetCount++;
+            }
             seed = h;
         }
     }
