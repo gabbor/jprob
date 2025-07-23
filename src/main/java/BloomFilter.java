@@ -68,8 +68,11 @@ public class BloomFilter<T> {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
-
         byte[] data = serializer.serialize(item);
+        return contains(data);
+    }
+
+    boolean contains(byte[] data) {
         long seed = 0;
 
         for (int i = 0; i < numHashes; i++) {
@@ -81,7 +84,7 @@ public class BloomFilter<T> {
             }
             seed = h;
         }
-
         return true;
     }
+
 }

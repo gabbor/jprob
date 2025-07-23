@@ -44,13 +44,15 @@ public class ScalableBloomFilter<T> {
     }
 
     public boolean contains(T item) {
+        byte[] data = serializer.serialize(item);
         for (BloomFilter<T> filter : filters) {
-            if (filter.contains(item)) {
+            if (filter.contains(data)) {
                 return true;
             }
         }
         return false;
     }
+
 
     private boolean isSaturated(BloomFilter<T> filter) {
         // Simple heuristic: if more than 50% of bits are set
