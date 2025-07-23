@@ -33,14 +33,19 @@ public class ScalableBloomFilter<T> {
 
     public void add(T item) {
         BloomFilter<T> currentFilter = filters.getLast();
-        currentFilter.add(item);
-
-        // if saturation is high, add a new filter
-        if (isSaturated(currentFilter)) {
-            double newErrorRate = currentFilter.errorRate * tighteningRatio;
-            long newCapacity = (long) (currentFilter.numElements * growthRate);
-            addNewFilter(newErrorRate, newCapacity);
+        byte[] data = serializer.serialize(item);
+        long h1 = hasher.hash64(data, BloomFilter.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, BloomFilter.SECONDARY_HASH_SEED);
+        if (!this.contains(h1, h2)) {
+            // if saturation is high, add a new filter
+            if (isSaturated(currentFilter)) {
+                double newErrorRate = currentFilter.errorRate * tighteningRatio;
+                long newCapacity = (long) (currentFilter.numElements * growthRate);
+                addNewFilter(newErrorRate, newCapacity);
+            }
+            filters.getLast().add(h1, h2);
         }
+
     }
 
     public boolean contains(T item) {
@@ -50,6 +55,11 @@ public class ScalableBloomFilter<T> {
         byte[] data = serializer.serialize(item);
         long h1 = hasher.hash64(data, BloomFilter.PRIMARY_HASH_SEED);
         long h2 = hasher.hash64(data, BloomFilter.SECONDARY_HASH_SEED);
+        return this.contains(h1, h2);
+    }
+
+
+    boolean contains(long h1, long h2) {
         for (BloomFilter<T> filter : filters) {
             if (filter.contains(h1, h2)) {
                 return true;
@@ -57,7 +67,6 @@ public class ScalableBloomFilter<T> {
         }
         return false;
     }
-
 
     private boolean isSaturated(BloomFilter<T> filter) {
         // Simple heuristic: if more than 50% of bits are set

@@ -54,6 +54,10 @@ public class BloomFilter<T> {
         byte[] data = serializer.serialize(item);
         long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
         long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
+        this.add(h1, h2);
+    }
+
+    void add(long h1, long h2) {
         for (int i = 0; i < numHashes; i++) {
             long combined = h1 + i * h2;
             int indexInSlice = Math.floorMod(combined, sliceSize);
@@ -65,19 +69,17 @@ public class BloomFilter<T> {
         }
     }
 
+
     public boolean contains(T item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        return contains(data);
-    }
-
-    boolean contains(byte[] data) {
         long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
         long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
         return contains(h1, h2);
     }
+
 
     boolean contains(long h1, long h2) {
         for (int i = 0; i < numHashes; i++) {
