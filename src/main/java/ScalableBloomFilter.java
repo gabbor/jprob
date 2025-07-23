@@ -12,8 +12,8 @@ public class ScalableBloomFilter<T> {
     private final long initialCapacity;
     private final double growthRate;
     private final double tighteningRatio;
-    private Serializer<T> serializer;
-    private Hasher hasher;
+    private final Serializer<T> serializer;
+    private final Hasher hasher;
 
     public ScalableBloomFilter(double errorRate, long initialCapacity, double growthRate, double errorRatio, Hasher hasher, Serializer<T> serializer) {
         this.filters = new ArrayList<>();
@@ -44,9 +44,14 @@ public class ScalableBloomFilter<T> {
     }
 
     public boolean contains(T item) {
+        if (item == null) {
+            throw new IllegalArgumentException("Item cannot be null");
+        }
         byte[] data = serializer.serialize(item);
+        long h1 = hasher.hash64(data, BloomFilter.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, BloomFilter.SECONDARY_HASH_SEED);
         for (BloomFilter<T> filter : filters) {
-            if (filter.contains(data)) {
+            if (filter.contains(h1, h2)) {
                 return true;
             }
         }

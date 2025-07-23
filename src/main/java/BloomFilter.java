@@ -7,6 +7,9 @@ import java.util.BitSet;
 
 public class BloomFilter<T> {
 
+    // Constants for double hashing
+    public static final long PRIMARY_HASH_SEED = 0xDEADBEEFL;
+    public static final long SECONDARY_HASH_SEED = 0xBAADF00DL;
     final double errorRate;
     final long numElements;
     final BitSet bitSet;
@@ -48,19 +51,17 @@ public class BloomFilter<T> {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
-
         byte[] data = serializer.serialize(item);
-        long seed = 0;
-
+        long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
         for (int i = 0; i < numHashes; i++) {
-            long h = hasher.hash64(data, seed);
-            int indexInSlice = Math.floorMod(h, sliceSize);
+            long combined = h1 + i * h2;
+            int indexInSlice = Math.floorMod(combined, sliceSize);
             int index = i * sliceSize + indexInSlice;
             if (!bitSet.get(index)) {
                 bitSet.set(index);
                 bitsSetCount++;
             }
-            seed = h;
         }
     }
 
@@ -73,18 +74,22 @@ public class BloomFilter<T> {
     }
 
     boolean contains(byte[] data) {
-        long seed = 0;
+        long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
+        return contains(h1, h2);
+    }
 
+    boolean contains(long h1, long h2) {
         for (int i = 0; i < numHashes; i++) {
-            long h = hasher.hash64(data, seed);
-            int indexInSlice = Math.floorMod(h, sliceSize);
+            long combined = h1 + i * h2;
+            int indexInSlice = Math.floorMod(combined, sliceSize);
             int index = i * sliceSize + indexInSlice;
             if (!bitSet.get(index)) {
                 return false;
             }
-            seed = h;
         }
         return true;
     }
+
 
 }
