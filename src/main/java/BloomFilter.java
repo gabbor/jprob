@@ -5,7 +5,7 @@ import serializer.Serializer;
 
 import java.util.BitSet;
 
-public class BloomFilter<T> {
+public class BloomFilter<T> implements IBloomFilter<T> {
 
     // Constants for double hashing
     public static final long PRIMARY_HASH_SEED = 0xDEADBEEFL;
@@ -47,6 +47,7 @@ public class BloomFilter<T> {
         return (int) Math.round((m / (double) n) * Math.log(2));
     }
 
+    @Override
     public void add(T item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
@@ -69,7 +70,7 @@ public class BloomFilter<T> {
         }
     }
 
-
+    @Override
     public boolean contains(T item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");

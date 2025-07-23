@@ -5,7 +5,7 @@ import serializer.Serializer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ScalableBloomFilter<T> {
+public class ScalableBloomFilter<T> implements IBloomFilter<T> {
 
     private final List<BloomFilter<T>> filters;
     private final double errorRate;
@@ -31,6 +31,7 @@ public class ScalableBloomFilter<T> {
         filters.add(filter);
     }
 
+    @Override
     public void add(T item) {
         BloomFilter<T> currentFilter = filters.getLast();
         byte[] data = serializer.serialize(item);
@@ -48,6 +49,7 @@ public class ScalableBloomFilter<T> {
 
     }
 
+    @Override
     public boolean contains(T item) {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
