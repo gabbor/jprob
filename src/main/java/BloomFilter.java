@@ -6,10 +6,6 @@ import serializer.Serializer;
 import java.util.BitSet;
 
 public class BloomFilter<T> implements IBloomFilter<T> {
-
-    // Constants for double hashing
-    public static final long PRIMARY_HASH_SEED = 0xDEADBEEFL;
-    public static final long SECONDARY_HASH_SEED = 0xBAADF00DL;
     final double errorRate;
     final long numElements;
     final BitSet bitSet;
@@ -53,8 +49,8 @@ public class BloomFilter<T> implements IBloomFilter<T> {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
         this.add(h1, h2);
     }
 
@@ -76,8 +72,8 @@ public class BloomFilter<T> implements IBloomFilter<T> {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
         return contains(h1, h2);
     }
 

@@ -35,8 +35,8 @@ public class ScalableBloomFilter<T> implements IBloomFilter<T> {
     public void add(T item) {
         BloomFilter<T> currentFilter = filters.getLast();
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, BloomFilter.PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, BloomFilter.SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
         if (!this.contains(h1, h2)) {
             // if saturation is high, add a new filter
             if (isSaturated(currentFilter)) {
@@ -55,8 +55,8 @@ public class ScalableBloomFilter<T> implements IBloomFilter<T> {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, BloomFilter.PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, BloomFilter.SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
+        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
         return this.contains(h1, h2);
     }
 
