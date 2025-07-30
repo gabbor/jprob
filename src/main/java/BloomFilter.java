@@ -57,7 +57,7 @@ public class BloomFilter<T> implements IBloomFilter<T> {
     void add(long h1, long h2) {
         for (int i = 0; i < numHashes; i++) {
             long combined = h1 + i * h2;
-            int indexInSlice = Math.floorMod(combined, sliceSize);
+            int indexInSlice = (int) Long.remainderUnsigned(combined, sliceSize);
             int index = i * sliceSize + indexInSlice;
             if (!bitSet.get(index)) {
                 bitSet.set(index);
@@ -81,7 +81,7 @@ public class BloomFilter<T> implements IBloomFilter<T> {
     boolean contains(long h1, long h2) {
         for (int i = 0; i < numHashes; i++) {
             long combined = h1 + i * h2;
-            int indexInSlice = Math.floorMod(combined, sliceSize);
+            int indexInSlice = (int) Long.remainderUnsigned(combined, sliceSize);
             int index = i * sliceSize + indexInSlice;
             if (!bitSet.get(index)) {
                 return false;
