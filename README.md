@@ -87,7 +87,7 @@ public class Main {
         filter.add("orange");
 
         // Check for membership
-        System.out.println("Contains 'apple'? " + filter.contains("apple"));   // likely true
+        System.out.println("Contains 'apple'? " + filter.contains("apple"));   // true
         System.out.println("Contains 'grape'? " + filter.contains("grape"));   // likely false
     }
 }
