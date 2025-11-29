@@ -14,12 +14,16 @@ public class BloomFilter<T> implements IBloomFilter<T> {
     private final Serializer<T> serializer;
     private final int numHashes;
     private final int sliceSize;
+    private final long primarySeed;
+    private final long secondarySeed;
 
-    public BloomFilter(double errorRate, long numElements, Hasher hasher, Serializer<T> serializer) {
+    public BloomFilter(double errorRate, long numElements, Hasher hasher, Serializer<T> serializer, long primarySeed, long secondarySeed) {
         this.errorRate = errorRate;
         this.numElements = numElements;
         this.hasher = hasher;
         this.serializer = serializer;
+        this.primarySeed = primarySeed;
+        this.secondarySeed = secondarySeed;
 
         int bitSetSize = calculateBitSetSize(numElements, errorRate);
         this.numHashes = calculateNumHashes(bitSetSize, numElements);
@@ -29,6 +33,10 @@ public class BloomFilter<T> implements IBloomFilter<T> {
         int adjustedSize = sliceSize * numHashes;
 
         this.bitSet = new BitSet(adjustedSize);
+    }
+
+    public BloomFilter(double errorRate, long numElements, Hasher hasher, Serializer<T> serializer) {
+        this(errorRate, numElements, hasher, serializer, HashSeed.PRIMARY_HASH_SEED, HashSeed.SECONDARY_HASH_SEED);
     }
 
     public BloomFilter(double errorRate, long numElements) {
@@ -49,8 +57,8 @@ public class BloomFilter<T> implements IBloomFilter<T> {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, primarySeed);
+        long h2 = hasher.hash64(data, secondarySeed);
         this.add(h1, h2);
     }
 
@@ -72,8 +80,8 @@ public class BloomFilter<T> implements IBloomFilter<T> {
             throw new IllegalArgumentException("Item cannot be null");
         }
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, primarySeed);
+        long h2 = hasher.hash64(data, secondarySeed);
         return contains(h1, h2);
     }
 

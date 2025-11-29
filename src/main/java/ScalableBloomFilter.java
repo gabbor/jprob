@@ -14,8 +14,14 @@ public class ScalableBloomFilter<T> implements IBloomFilter<T> {
     private final double tighteningRatio;
     private final Serializer<T> serializer;
     private final Hasher hasher;
+    private final long primarySeed;
+    private final long secondarySeed;
 
     public ScalableBloomFilter(double errorRate, long initialCapacity, double growthRate, double errorRatio, Hasher hasher, Serializer<T> serializer) {
+        this(errorRate, initialCapacity, growthRate, errorRatio, hasher, serializer, HashSeed.PRIMARY_HASH_SEED, HashSeed.SECONDARY_HASH_SEED);
+    }
+
+    public ScalableBloomFilter(double errorRate, long initialCapacity, double growthRate, double errorRatio, Hasher hasher, Serializer<T> serializer, long primarySeed, long secondarySeed) {
         this.filters = new ArrayList<>();
         this.errorRate = errorRate;
         this.initialCapacity = initialCapacity;
@@ -23,20 +29,22 @@ public class ScalableBloomFilter<T> implements IBloomFilter<T> {
         this.tighteningRatio = errorRatio;
         this.serializer = serializer;
         this.hasher = hasher;
+        this.primarySeed = primarySeed;
+        this.secondarySeed = secondarySeed;
         addNewFilter(errorRate * (1 - errorRatio), initialCapacity);
     }
 
     private void addNewFilter(double errorRate, long capacity) {
-        BloomFilter<T> filter = new BloomFilter<>(errorRate, capacity, new MurmurHash3(), this.serializer);
+        BloomFilter<T> filter = new BloomFilter<>(errorRate, capacity, this.hasher, this.serializer, this.primarySeed, this.secondarySeed);
         filters.add(filter);
     }
 
     @Override
     public void add(T item) {
-        BloomFilter<T> currentFilter = filters.getLast();
+        BloomFilter<T> currentFilter = filters.get(filters.size() - 1);
         byte[] data = serializer.serialize(item);
-        long h1 = hasher.hash64(data, HashSeed.PRIMARY_HASH_SEED);
-        long h2 = hasher.hash64(data, HashSeed.SECONDARY_HASH_SEED);
+        long h1 = hasher.hash64(data, primarySeed);
+        long h2 = hasher.hash64(data, secondarySeed);
         if (!this.contains(h1, h2)) {
             // if saturation is high, add a new filter
             if (isSaturated(currentFilter)) {
@@ -44,7 +52,7 @@ public class ScalableBloomFilter<T> implements IBloomFilter<T> {
                 long newCapacity = (long) (currentFilter.numElements * growthRate);
                 addNewFilter(newErrorRate, newCapacity);
             }
-            filters.getLast().add(h1, h2);
+            filters.get(filters.size() - 1).add(h1, h2);
         }
 
     }
