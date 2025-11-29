@@ -1,3 +1,5 @@
+[![Java 17](https://img.shields.io/badge/Java-%3E=%2017-blue.svg)](https://adoptium.net/temurin/releases/?os=any&arch=any&version=17)
+
 # Probabilistic Data Structures in Java
 
 This project provides Java implementations of several **probabilistic data structures**, designed for efficient memory usage and fast approximate computations on large datasets.
@@ -10,17 +12,12 @@ This project provides Java implementations of several **probabilistic data struc
 - **HeavyKeeper**: Identifies heavy hitters (frequently occurring elements) in data streams.
 - **Count-Min Sketch**: Approximates the frequency of elements in a stream with controlled error bounds.
 
-## 🛠️ Technologies
 
-- Java 21+
-- Maven
-- JUnit 5
-
-## 🚀 Getting Started
+## 🛠️ How to build
 
 ### Prerequisites
 
-- Java Development Kit (JDK) 21 or higher
+- Java Development Kit (JDK) 17 or higher
 - Maven installed
 
 ### Installation
@@ -31,7 +28,7 @@ cd jprob
 mvn clean install
 ```
 
-## 📘 Examples
+## 🚀 Getting Started
 
 ### 🔢 HyperLogLog
 
